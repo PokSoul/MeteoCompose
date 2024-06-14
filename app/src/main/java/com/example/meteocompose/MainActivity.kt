@@ -1,43 +1,26 @@
 package com.example.meteocompose
 
+import WeatherScreen
+import WeatherViewModel
+import WeatherViewModelFactory
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.meteocompose.ui.theme.MeteoComposeTheme
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
+import com.example.meteocompose.data.network.NetworkModule
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val api = NetworkModule.provideWeatherApi(NetworkModule.provideRetrofit())
+        val repository = NetworkModule.provideWeatherRepository(api)
+        val viewModelFactory = WeatherViewModelFactory(repository)
+        val viewModel = ViewModelProvider(this as ViewModelStoreOwner, viewModelFactory)[WeatherViewModel::class.java]
+
         setContent {
-            MeteoComposeTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
-                ) {
-                    Greeting("Android")
-                }
-            }
+            WeatherScreen(viewModel = viewModel)
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    MeteoComposeTheme {
-        Greeting("Vincent")
     }
 }
